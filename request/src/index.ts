@@ -1,13 +1,26 @@
-import express from "express";
-import { S3 } from "aws-sdk";
+import { join } from "path";
+import { uploadFile } from "./aws";
 
-const s3 = new S3({
-    accessKeyId: "7ea9c3f8c7f0f26f0d21c5ce99d1ad6a",
-    secretAccessKey: "b4df203781dd711223ce931a2d7ca269cdbf81bb530de4548474584951b798be",
-    endpoint: "https://e21220f4758c0870ba9c388712d42ef2.r2.cloudflarestorage.com"
-})
+const path = join(__dirname, "../dist");
+const files = getAllFiles(path);
 
-const app = express();
+async function getAllFiles(dir: string): Promise<string[]> {
+    const files = [];
+    const items = await fs.promises.readdir(dir);
+
+    for (const item of items) {
+        const fullPath = join(dir, item);
+        const stats = await fs.promises.stat(fullPath);
+
+        if (stats.isDirectory()) {
+            files.push(...(await getAllFiles(fullPath)));
+        } else {
+            files.push(fullPath);
+        }
+    }
+
+    return files;
+}
 
 app.get("/*", async (req, res) => {
     // id.100xdevs.com
